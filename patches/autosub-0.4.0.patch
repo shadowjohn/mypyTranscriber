@@ -1,0 +1,107 @@
+--- __init__-0.4.0.py	2019-02-09 21:21:16.335586891 +0700
++++ __init__.py	2019-02-10 21:25:41.864964164 +0700
+@@ -8,16 +8,22 @@
+ 
+ import argparse
+ import audioop
+-import json
+ import math
+ import multiprocessing
+ import os
++from json import JSONDecodeError
+ import subprocess
+ import sys
+ import tempfile
+ import wave
+ 
++import json
+ import requests
++try:
++    from json.decoder import JSONDecodeError
++except ImportError:
++    JSONDecodeError = ValueError
++
+ from googleapiclient.discovery import build
+ from progressbar import ProgressBar, Percentage, Bar, ETA
+ 
+@@ -61,8 +67,10 @@
+             start, end = region
+             start = max(0, start - self.include_before)
+             end += self.include_after
+-            temp = tempfile.NamedTemporaryFile(suffix='.flac')
+-            command = ["ffmpeg", "-ss", str(start), "-t", str(end - start),
++            #delete=False necessary for running on Windows
++            temp = tempfile.NamedTemporaryFile(suffix='.flac', delete=False)
++            program_ffmpeg = which("ffmpeg")
++            command = [str(program_ffmpeg), "-ss", str(start), "-t", str(end - start),
+                        "-y", "-i", self.source_path,
+                        "-loglevel", "error", temp.name]
+             use_shell = True if os.name == "nt" else False
+@@ -102,6 +110,8 @@
+                     except IndexError:
+                         # no result
+                         continue
++                    except JSONDecodeError:
++                        continue
+ 
+         except KeyboardInterrupt:
+             return None
+@@ -149,17 +159,25 @@
+         Checks whether a file is executable.
+         """
+         return os.path.isfile(file_path) and os.access(file_path, os.X_OK)
+-
++    #necessary to run on Windows
++    if os.name == "nt":
++        program += ".exe"
+     fpath, _ = os.path.split(program)
+     if fpath:
+         if is_exe(program):
+             return program
+     else:
+-        for path in os.environ["PATH"].split(os.pathsep):
+-            path = path.strip('"')
+-            exe_file = os.path.join(path, program)
+-            if is_exe(exe_file):
+-                return exe_file
++        #looks for file in the script execution folder before checking on system path
++        current_dir = os.getcwd()
++        local_program = os.path.join(current_dir, program)
++        if is_exe(local_program):
++            return local_program
++        else:
++            for path in os.environ["PATH"].split(os.pathsep):
++                path = path.strip('"')
++                exe_file = os.path.join(path, program)
++                if is_exe(exe_file):
++                    return exe_file
+     return None
+ 
+ 
+@@ -171,10 +189,11 @@
+     if not os.path.isfile(filename):
+         print("The given file does not exist: {}".format(filename))
+         raise Exception("Invalid filepath: {}".format(filename))
+-    if not which("ffmpeg"):
++    program_ffmpeg = which("ffmpeg")
++    if not program_ffmpeg:
+         print("ffmpeg: Executable not found on machine.")
+         raise Exception("Dependency not found: ffmpeg")
+-    command = ["ffmpeg", "-y", "-i", filename,
++    command = [str(program_ffmpeg), "-y", "-i", filename,
+                "-ac", str(channels), "-ar", str(rate),
+                "-loglevel", "error", temp.name]
+     use_shell = True if os.name == "nt" else False
+@@ -233,6 +252,12 @@
+     """
+     Given an input audio/video file, generate subtitles in the specified language and format.
+     """
++
++    if "Darwin" in os.uname():
++        #the default unix fork method does not work on Mac OS
++        #need to use forkserver
++        multiprocessing.set_start_method('forkserver')
++
+     audio_filename, audio_rate = extract_audio(source_path)
+ 
+     regions = find_speech_regions(audio_filename)

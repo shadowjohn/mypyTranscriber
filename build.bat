@@ -1,0 +1,1 @@
+c:\Python36-32\Scripts\pyinstaller.exe main.py -F

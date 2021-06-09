@@ -1,1 +1,1 @@
-c:\Python36-32\Scripts\pyinstaller.exe main.py -F
+c:\Python39-32\Scripts\pyinstaller.exe main.py -F

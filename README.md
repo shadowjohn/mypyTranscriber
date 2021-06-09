@@ -5,7 +5,7 @@ Fork from pyTranscriber : https://github.com/raryelcostasouza/pyTranscriber
 pyTranscriber is an application that can be used to generate <b>automatic transcription / automatic subtitles </b> for audio/video files through a friendly graphical user interface. The hard work of speech recognition is made by the <a href="https://cloud.google.com/speech/">Google Speech Recognition API</a> using <a href="https://github.com/agermanidis/autosub">Autosub</a>.
 <br>
 <br>
-![pyTranscriber1](doc/screenshot4.png?raw=true "pyTranscriber")
+![pyTranscriber1](doc/1.6.png?raw=true "pyTranscriber")
 <br>
 <br>
 pyTranscriber is a improved version of my previous project <a href="https://github.com/raryelcostasouza/JAutosub">JAutosub (Java)</a>, created because of the limitations, issues, and overhead of mixing this 2 different languages on a single project.
@@ -19,20 +19,42 @@ IMPORTANT: As speech recognition technology is still not fully accurate, the <b>
 <br>
 <br>
 Compiler 方法：<br>
+<ul>
+<li>c:\Python39-32\Scripts\pip install google-api-python-client</li>
+<li>c:\Python39-32\Scripts\pip install requests</li>
+<li>c:\Python39-32\Scripts\pip install progressbar</li>
+<li>c:\Python39-32\Scripts\pip install pysrt</li>
+<li>c:\Python39-32\Scripts\pip install pyinstaller</li>
 詳見 build.bat<br>
+</ul>
 <br>
-v1.5 使用方法：<br>
+v1.6 使用方法：<br>
 <br>
-main.exe [wavInput] [txtOutput]<br>
+  main.exe [輸入的音檔] [輸出的文字檔] [音檔原語言] [輸出語言]
+  語言列表 [zh-TW、zh-CN、en]
+  
+  目前只能繁轉簡、簡轉繁，無法中文轉英文，英文轉中文，又不是翻譯機...
+  
+  音檔原語言 預設為 zh-TW
+  輸出語言 預設為 zh-TW
+<br>
+main.exe [wav Input] [txt Output] [wav lang=zh] [output Lang=zh-TW]<br>
 <br>
 例：<br>
 <br>
 cd dist<br>
-main.exe test.wav test.txt<br>
+main.exe test.wav test.txt
+main.exe test.wav test.txt zh zh-TW<br>
+main.exe test.wav test.txt zh zh-CN<br>
+main.exe test.wav test.txt en en<br>
 <br>    
 <br>
 <br>
 <h1>Release Notes:</h1>
+<b>09/06/2021 - v1.6: By 羽山 (https://3wa.tw)</b>
+<br>* 增加載入音檔來源語言
+<br>* 增加輸出語言，可簡、繁轉換
+<br><br>
 <b>26/10/2020 - v1.5: By 羽山 (https://3wa.tw)</b>
 <br>* 改成 cli 執行
 <br><br>

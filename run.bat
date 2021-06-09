@@ -1,0 +1,1 @@
+c:\Python39-32\python.exe main.py dist\test.wav dist\test.txt zh zh-TW
